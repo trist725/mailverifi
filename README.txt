@@ -1,4 +1,11 @@
-邮箱批量验证程序V0.1
+邮箱批量验证程序
+
+V0.11
+0.修正一些小错误；
+1.input和output文件格式均修改为：
+username||^^||password
+行尾不要有空格
+
 
 V0.10说明：
 0.基于visual studio 2013编译；
@@ -22,3 +29,4 @@ type--邮箱类型，即邮箱账号@后面的部分
 server--smtp服务器域名
 encryption--加密类型  0-无加密 1-TLS 2-SSL
 port--smtp服务器端口
+

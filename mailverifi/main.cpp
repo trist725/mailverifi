@@ -4,6 +4,7 @@
 #include "Csmtp.h"
 
 const char* ConfigFile = ".//cfg.ini";
+const char* AccountSeparator = "||^^||";
 
 struct TCfgData
 {
@@ -89,9 +90,8 @@ void WriteCorrectAccout(std::string mail, std::string pwd)
 		printf("error : can not output file.\r\n");
 		exit(-1);
 	}
-	ofs << mail << endl;
-	ofs << pwd << endl;
-	ofs << endl;
+	ofs << mail << AccountSeparator << pwd << endl;
+
 	ofs.close();
 }
 
@@ -138,6 +138,11 @@ void CheckAccout(TCfgData cfg, std::string mail, std::string pwd)
 
 int main(int argc, char* argv[])
 {
+	if (2 != argc)
+	{
+		std::cout << "error : bad parameter.." << endl;
+		exit(-1);
+	}
 	loadCfgFile();
 
 	ifstream rf;
@@ -150,30 +155,28 @@ int main(int argc, char* argv[])
 	string strline;
 	int pos = 0;
 	TCfgData cfgdata;
-	bool bGetPwd = false;
 	string mail, pwd;
 	while (getline(rf, strline))
 	{
-		if (bGetPwd)
+		if ((pos = strline.find(AccountSeparator)) >= 0)
 		{
-			pwd = strline;
-			bGetPwd = false;
-			CheckAccout(cfgdata, mail, pwd);
-			continue;
-		}
-		vector<TCfgData>::iterator it;
-		for (it = g_cfgdata.begin(); it != g_cfgdata.end(); ++it)
-		{
-			if ((pos = strline.find((*it).type)) >= 0)
+			mail = strline.substr(0, pos);
+			pwd = strline.substr(pos + strlen(AccountSeparator), strline.size() - pos);
+			strTrim(mail);
+			vector<TCfgData>::iterator it;
+			for (it = g_cfgdata.begin(); it != g_cfgdata.end(); ++it)
 			{
-				cfgdata = (*it);
-				mail = strline;
-				bGetPwd = true;
-				continue;
+				if ((pos = mail.find((*it).type)) >= 0)
+				{
+					cfgdata = (*it);
+					break;
+				}
 			}
+			CheckAccout(cfgdata, mail, pwd);
 		}
 	}
 
+	std::cout << endl << "Authentication, the program exits.." << endl;
 	//system("pause");
 	return 0;
 }
